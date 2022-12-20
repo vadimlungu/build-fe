@@ -37,4 +37,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v3.2.0
+    - name: Notify Slack Start
+      id: notify-slack-start
+      uses: cristi-mb/slack-notify@1.1
+      with:
+        message-type: start
+        slack-channel: inputs.slack-channel
+        slack-bot-token: inputs.slack-token
