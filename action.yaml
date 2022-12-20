@@ -1,28 +1,36 @@
-name: Notify Slack for CI run (2)
-description: Send Slack notifications for CI run started / finished
+name: Publish FE
+description: Build and deploy webapp
 branding:
-  icon: message-circle
+  icon: package
   color: blue
 inputs:
-  message-type:
-    description: 'Message type'
+  repo:
+    description: 'Repository holding webapp code'
+    required: true
+  aws-access-key:
+    description: 'AWS Secret Key ID'
+    required: true
+  aws-secret-access-key:
+    description: 'AWS Secret Access Key'
+    required: true
+  aws-region:
+    description: 'AWS Region of the S3 and CloudFront resources'
+    required: true
+  aws-s3-name:
+    description: 'Name of the AWS S3 bucket'
+    required: true
+  aws-cloudfront-name:
+    description: 'Name of the AWS S3 bucket'
     required: true
   slack-channel:
-    description: 'Slack channel to send the message to'
+    description: 'Name of the Slack channel used for CI alerts'
     required: true
-  slack-bot-token:
-    description: 'Token for Slack bot'
+  build-path:
+    description: 'Local path of the build'
     required: true
-  message-ts:
-    description: 'Timestamp of the start message'
-    required: false
-  steps-context:
-    description: 'Steps that ran on caller job'
-    required: false
-outputs:
-  message-ts:
-    description: "Start message timestamp"
-    value: ${{ steps.start-message.outputs.message-ts }}
+  node-version:
+    description: 'NodeJS required version'
+    required: true
 runs:
   using: "composite"
   steps:
