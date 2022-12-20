@@ -37,10 +37,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Notify Slack Start
-        id: notify-slack-start
-        uses: cristi-mb/slack-notify@1.1
-        with:
-          message-type: start
-          slack-channel: inputs.slack-channel
-          slack-bot-token: inputs.slack-token
+    - name: Test
+      run: echo "test"
+      shell: bash
