@@ -25,6 +25,9 @@ inputs:
   slack-channel:
     description: 'Name of the Slack channel used for CI alerts'
     required: true
+  slack-token:
+    description: 'Token for Slack integration'
+    required: true
   build-path:
     description: 'Local path of the build'
     required: true
@@ -34,52 +37,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Send Start Message
-      if: inputs.message-type == 'start'
-      id: start-message
-      run: |
-        color="#FFCC40"
-        echo "message-ts=$(curl -s -H "Content-type: application/json" -H "Authorization: Bearer ${{ inputs.slack-bot-token }}" -X POST https://slack.com/api/chat.postMessage --data '{"channel":"${{ inputs.slack-channel }}", "attachments":[{"color":"'$color'","blocks":[{"type":"section","text":{"type":"mrkdwn","text":"*[STARTING] <${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} - ${{ github.job }}>*"}},{"type":"section","fields":[{"type":"mrkdwn","text":"*Repository*\n<${{ github.event.repository.html_url }}|${{ github.event.repository.name }}>"},{"type":"mrkdwn","text":"*Commit*\n<${{ github.event.compare }}|${{ github.event.head_commit.message }}>"}]},{"type":"divider"}]}]}' | jq '.ts')" >> $GITHUB_OUTPUT
-      shell: bash
-
-    - name: Send Result Message
-      if: inputs.message-type == 'results'
-      id: result-message
-      run: |
-        echo ${{ inputs.steps-context }} | tr -d "'" > steps.json
-        
-        color="#44BB44" # green
-        steps="*Steps*\n"
-
-        for i in $(jq 'keys_unsorted[]' steps.json); do
-          if [[ $i == *"notify-slack"* ]]; then
-            continue;
-          fi
-        
-          outcome=$(jq ".$i.outcome" steps.json | tr -d '"')
-          case $outcome in
-            "success")
-              emoji=":heavy_check_mark:";;
-            "failure")
-              emoji=":x:"
-              color="BB4444";;
-            "skipped")
-              emoji=":fast_forward:";;
-            "cancelled")
-              emoji=":double_vertical_bar:";;
-            *)
-              emoji=":grey_question:";;
-          esac
-        
-          steps+=$(echo "\t$emoji\u0020$i\n\n" | tr -d '"')
-        done
-
-        curl -s -H "Content-type: application/json" -H "Authorization: Bearer ${{ inputs.slack-bot-token }}" -X POST https://slack.com/api/chat.postMessage --data '{"channel":"${{ inputs.slack-channel }}","attachments":[{"color":"'$color'","blocks":[{"type":"section","text":{"type":"mrkdwn","text":"*[RESULTS] <${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} - ${{ github.job }}>*"}},{"type":"section","fields":[{"type":"mrkdwn","text":"*Repository*\n<${{ github.event.repository.html_url }}|${{ github.event.repository.name }}>"},{"type":"mrkdwn","text":"*Commit*\n<${{ github.event.compare }}|${{ github.event.head_commit.message }}>"}]},{"type":"section","text":{"type":"mrkdwn","text":"'$steps'"}},{"type":"divider"}]}]}'
-      shell: bash
-
-    - name: Delete Start message
-      if: steps.result-message.outcome == 'success'
-      run: |
-        channel_id=$(curl -s -d "token=${{ inputs.slack-bot-token }}" -d "exclude_archived=true" https://slack.com/api/conversations.list | jq '.channels[] | .id + " " + .name' | grep ${{ inputs.slack-channel }} | cut -d ' ' -f 1 | tr -d '"')
-        curl -s -d "token=${{ inputs.slack-bot-token }}" -d "channel=$channel_id" -d "ts=${{ inputs.message-ts }}" -X POST https://slack.com/api/chat.delete
-      shell: bash
+    - name: Notify Slack Start
+        id: notify-slack-start
+        uses: cristi-mb/slack-notify@1.1
+        with:
+          message-type: start
+          slack-channel: inputs.slack-channel
+          slack-bot-token: inputs.slack-token
