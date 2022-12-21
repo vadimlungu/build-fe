@@ -4,106 +4,116 @@ branding:
   icon: package
   color: blue
 inputs:
-  repo:
-    description: 'Repository holding webapp code'
-    required: true
-  aws-access-key:
-    description: 'AWS Secret Key ID'
-    required: true
-  aws-secret-access-key:
-    description: 'AWS Secret Access Key'
-    required: true
-  aws-region:
-    description: 'AWS Region of the S3 and CloudFront resources'
-    required: true
-  aws-s3-name:
-    description: 'Name of the AWS S3 bucket'
-    required: true
-  aws-cloudfront-name:
-    description: 'Name of the AWS S3 bucket'
-    required: true
-  slack-channel:
-    description: 'Name of the Slack channel used for CI alerts'
-    required: true
-  slack-token:
-    description: 'Token for Slack integration'
-    required: true
-  build-path:
-    description: 'Local path of the build'
-    required: true
-  node-version:
-    description: 'NodeJS required version'
-    required: true
+#   repo:
+#     description: 'Repository holding webapp code'
+#     required: true
+#   aws-access-key:
+#     description: 'AWS Secret Key ID'
+#     required: true
+#   aws-secret-access-key:
+#     description: 'AWS Secret Access Key'
+#     required: true
+#   aws-region:
+#     description: 'AWS Region of the S3 and CloudFront resources'
+#     required: true
+#   aws-s3-name:
+#     description: 'Name of the AWS S3 bucket'
+#     required: true
+#   aws-cloudfront-name:
+#     description: 'Name of the AWS S3 bucket'
+#     required: true
+#   slack-channel:
+#     description: 'Name of the Slack channel used for CI alerts'
+#     required: true
+#   slack-token:
+#     description: 'Token for Slack integration'
+#     required: true
+#   build-path:
+#     description: 'Local path of the build'
+#     required: true
+#   node-version:
+#     description: 'NodeJS required version'
+#     required: true
 runs:
   using: "composite"
   steps:
-    - name: Notify Slack Start
-      id: notify-slack-start
-      uses: cristi-mb/slack-notify@1.1
-      with:
-        message-type: start
-        slack-channel: inputs.slack-channel
-        slack-bot-token: inputs.slack-token
-        
-    - name: Checkout
-      id: checkout
-      uses: actions/checkout@v3.2.0
-
-    - name: Setup Nodejs
-      id: setup-node
-      uses: actions/setup-node@v3
-      with:
-        node-version: inputs.node-version
-
-    - name: Cache dependencies
-      id: node-cache
-      uses: actions/cache@v3.0.11
-      with:
-        path: |
-          **/node_modules
-        key: dev-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
-
-    - name: Install dependencies
-      id: install-dependencies
-      if: steps.node-cache.outputs.cache-hit != 'true'
-      run: yarn install --pure-lockfile
-
-    - name: Build
-      id: build
-      run: yarn build
+    - name: Dump
       env:
-        CI: false
+        GITHUB_CONTEXT: ${{ toJSON(github) }}
+      run: echo "$GITHUB_CONTEXT"
+      shell: bash
+  
+#     - name: Notify Slack Start
+#       id: notify-slack-start
+#       uses: cristi-mb/slack-notify@1.1
+#       with:
+#         message-type: start
+#         slack-channel: inputs.slack-channel
+#         slack-bot-token: inputs.slack-token
+        
+#     - name: Checkout
+#       id: checkout
+#       uses: actions/checkout@v3.2.0
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1.7.0
-      with:
-        aws-access-key-id: inputs.aws-access-key
-        aws-secret-access-key: inputs.aws-secret-access-key
-        aws-region: inputs.aws-region
+#     - name: Setup Nodejs
+#       id: setup-node
+#       uses: actions/setup-node@v3
+#       with:
+#         node-version: inputs.node-version
 
-    - name: Deploy static site to S3
-      id: deploy
-      run: ls -l && aws s3 sync ${{ inputs.build-path }} s3://${{ inputs.aws-s3-name }} --delete
+#     - name: Cache dependencies
+#       id: node-cache
+#       uses: actions/cache@v3.0.11
+#       with:
+#         path: |
+#           **/node_modules
+#         key: dev-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
 
-    - name: Invalidate CloudFront cache
-      id: invalidate-cache
-      run: |
-        #!/usr/bin/env bash
-        set -eou pipefail
-        CF_DIST_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[?Aliases.Items!=null] | [?contains(Aliases.Items, '${{ inputs.aws-cloudfront-name }}')].Id | [0]" | tr -d \")
-        echo "Clearing cache for ${CF_DIST_ID}..."
-        CF_INVALIDATION_ID=$(aws cloudfront create-invalidation --distribution-id ${CF_DIST_ID} --paths "/*" | jq -r '.Invalidation.Id')
-        while [ $(aws cloudfront get-invalidation --distribution-id ${CF_DIST_ID} --id ${CF_INVALIDATION_ID} | jq -r '.Invalidation.Status') != "Completed" ]; do
-          echo "CF_DIST_ID=${CF_DIST_ID} CF_INVALIDATION_ID=${CF_INVALIDATION_ID}: Waiting for CloudFront cache invalidation to complete..."
-          sleep 5
-        done
+#     - name: Install dependencies
+#       id: install-dependencies
+#       if: steps.node-cache.outputs.cache-hit != 'true'
+#       run: yarn install --pure-lockfile
+#       shell: bash
 
-    - name: Notify Slack Result
-      if: always()
-      uses: cristi-mb/slack-notify@1.1
-      with:
-        message-type: results
-        slack-channel: inputs.slack-channel
-        slack-bot-token: inputs.slack-token
-        message-ts: ${{ steps.notify-slack-start.outputs.message-ts }}
-        steps-context: "'${{ toJson(steps) }}'"
+#     - name: Build
+#       id: build
+#       run: yarn build
+#       env:
+#         CI: false
+#       shell: bash
+
+#     - name: Configure AWS credentials
+#       uses: aws-actions/configure-aws-credentials@v1.7.0
+#       with:
+#         aws-access-key-id: inputs.aws-access-key
+#         aws-secret-access-key: inputs.aws-secret-access-key
+#         aws-region: inputs.aws-region
+
+#     - name: Deploy static site to S3
+#       id: deploy
+#       run: ls -l && aws s3 sync ${{ inputs.build-path }} s3://${{ inputs.aws-s3-name }} --delete
+#       shell: bash
+
+#     - name: Invalidate CloudFront cache
+#       id: invalidate-cache
+#       run: |
+#         #!/usr/bin/env bash
+#         set -eou pipefail
+#         CF_DIST_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[?Aliases.Items!=null] | [?contains(Aliases.Items, '${{ inputs.aws-cloudfront-name }}')].Id | [0]" | tr -d \")
+#         echo "Clearing cache for ${CF_DIST_ID}..."
+#         CF_INVALIDATION_ID=$(aws cloudfront create-invalidation --distribution-id ${CF_DIST_ID} --paths "/*" | jq -r '.Invalidation.Id')
+#         while [ $(aws cloudfront get-invalidation --distribution-id ${CF_DIST_ID} --id ${CF_INVALIDATION_ID} | jq -r '.Invalidation.Status') != "Completed" ]; do
+#           echo "CF_DIST_ID=${CF_DIST_ID} CF_INVALIDATION_ID=${CF_INVALIDATION_ID}: Waiting for CloudFront cache invalidation to complete..."
+#           sleep 5
+#         done
+#       shell: bash
+
+#     - name: Notify Slack Result
+#       if: always()
+#       uses: cristi-mb/slack-notify@1.1
+#       with:
+#         message-type: results
+#         slack-channel: inputs.slack-channel
+#         slack-bot-token: inputs.slack-token
+#         message-ts: ${{ steps.notify-slack-start.outputs.message-ts }}
+#         steps-context: "'${{ toJson(steps) }}'"
