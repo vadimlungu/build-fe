@@ -45,6 +45,7 @@ runs:
         echo $INPUTS_LIST | jq "keys"
       env:
         INPUTS_LIST: ${{ toJson(inputs) }}
+      shell: bash
   
     - name: Notify Slack Start
       id: notify-slack-start
