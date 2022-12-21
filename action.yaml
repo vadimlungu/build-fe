@@ -42,7 +42,7 @@ runs:
 
     - name: Test
       run: |
-        echo $INPUTS_LIST | jq "keys"
+        echo $INPUTS_LIST
       env:
         INPUTS_LIST: ${{ toJson(inputs) }}
       shell: bash
