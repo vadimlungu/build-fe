@@ -3,7 +3,7 @@ description: Build and deploy webapp
 branding:
   icon: package
   color: blue
-inputs:
+# inputs:
 #   repo:
 #     description: 'Repository holding webapp code'
 #     required: true
