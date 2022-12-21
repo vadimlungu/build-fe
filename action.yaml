@@ -27,26 +27,15 @@ inputs:
     required: true
   build-path:
     description: 'Local path of the build'
-    required: true
+    required: false
+    default: 'build'
   node-version:
     description: 'NodeJS required version'
-    required: true
+    required: false
+    default: '16.x'
 runs:
   using: "composite"
-  steps:
-#     - name: Dump
-#       env:
-#         GITHUB_CONTEXT: ${{ toJSON(github) }}
-#       run: echo "$GITHUB_CONTEXT"
-#       shell: bash
-
-    - name: Test
-      run: |
-        echo $INPUTS_LIST
-      env:
-        INPUTS_LIST: ${{ toJson(inputs) }}
-      shell: bash
-  
+  steps:  
     - name: Notify Slack Start
       id: notify-slack-start
       uses: cristi-mb/slack-notify@1.1
