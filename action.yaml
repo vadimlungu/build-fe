@@ -25,12 +25,20 @@ inputs:
   slack-token:
     description: 'Token for Slack integration'
     required: true
+  build-command:
+    description: 'Command used to build the application [ yarn | npm ] (default: yarn)'
+    required: false
+    default: 'yarn'
+  app-envs:
+    description: 'Environment variables passed to the application'
+    required: false
+    default: ''
   build-path:
-    description: 'Local path of the build'
+    description: 'Local path of the build (default: build)'
     required: false
     default: 'build'
   node-version:
-    description: 'NodeJS required version'
+    description: 'NodeJS required version (default: 16.x)'
     required: false
     default: '16.x'
 runs:
@@ -65,12 +73,12 @@ runs:
     - name: Install dependencies
       id: install-dependencies
       if: steps.node-cache.outputs.cache-hit != 'true'
-      run: yarn install --pure-lockfile
+      run: ${{ inputs.build-command }} install --pure-lockfile
       shell: bash
 
     - name: Build
       id: build
-      run: yarn build
+      run: ${{ inputs.build-command }} build
       env:
         CI: false
       shell: bash
