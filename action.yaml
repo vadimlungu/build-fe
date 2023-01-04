@@ -94,9 +94,9 @@ runs:
 
     - name: Set envs
       run: |
-        for e in $(echo ${{ inputs.app-envs }} | cut -d ' ' -f 1-); do
-          key=$(echo $e | cut -d '=' -f 1)
-          value=$(echo $e | cut -d '=' -f 2)
+        for e in $(echo "${{ inputs.app-envs }}" | cut -d ' ' -f 1-); do
+          key=$(echo "$e" | cut -d '=' -f 1)
+          value=$(echo "$e" | cut -d '=' -f 2)
           echo "$key=$value" >> $GITHUB_ENV
         done
       shell: bash
