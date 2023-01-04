@@ -65,7 +65,7 @@ runs:
     - name: Setup yarn commands
       if: inputs.build-command == 'yarn'
       run: |
-         echo "cache_files=$CACHE_FILES" >> $GITHUB_ENV
+         echo "cache_files=**/yarn.lock" >> $GITHUB_ENV
          echo "dependencies_cmd=yarn install --pure-lockfile" >> $GITHUB_ENV
          echo "build_cmd=yarn build" >> $GITHUB_ENV
       env: 
@@ -88,43 +88,13 @@ runs:
       with:
         path: |
           **/node_modules
-        key: dev-${{ runner.os }}-${{ env.cache_files }}
+        key: dev-${{ runner.os }}-${{ hashFiles('${{ env.cache_files }}') }}
         
     - name: Install dependencies
       if: steps.node-cache.outputs.cache-hit != 'true'
       id: install-dependencies
-      run: eval(${{ env.dependencies_cmd }})
+      run: ${{ env.dependencies_cmd }}
       shell: bash
-
-#     - name: Cache dependencies (yarn)
-#       if: inputs.build-command == 'yarn'
-#       id: node-cache-yarn
-#       uses: actions/cache@v3.0.11
-#       with:
-#         path: |
-#           **/node_modules
-#         key: dev-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
-        
-#     - name: Cache dependencies (npm)
-#       if: inputs.build-command == 'npm'
-#       id: node-cache-npm
-#       uses: actions/cache@v3.0.11
-#       with:
-#         path: |
-#           **/node_modules
-#         key: dev-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
-
-#     - name: Install dependencies (yarn)
-#       if: inputs.build-command == 'yarn' && steps.node-cache.outputs.cache-hit != 'true'
-#       id: install-dependencies-yarn
-#       run: yarn install --pure-lockfile
-#       shell: bash
-      
-#     - name: Install dependencies (npm)
-#       if: inputs.build-command == 'npm' && steps.node-cache.outputs.cache-hit != 'true'
-#       id: install-dependencies-npm
-#       run: npm ci
-#       shell: bash
 
     - name: Set envs
       id: set-envs
@@ -142,22 +112,6 @@ runs:
       env:
         CI: false
       shell: bash
-
-#     - name: Build (yarn)
-#       if: inputs.build-command == 'yarn'
-#       id: build-yarn
-#       run: yarn build
-#       env:
-#         CI: false
-#       shell: bash
-    
-#     - name: Build (npm)
-#       if: inputs.build-command == 'npm'
-#       id: build-npm
-#       run: npm run build
-#       env:
-#         CI: false
-#       shell: bash
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1.7.0
