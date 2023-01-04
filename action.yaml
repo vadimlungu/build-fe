@@ -78,19 +78,19 @@ runs:
         echo "build_cmd='npm run build'" >> $GITHUB_ENV
       shell: bash
         
-    - name: Cache dependencies
-      id: node-cache
-      uses: actions/cache@v3.0.11
-      with:
-        path: |
-          **/node_modules
-        key: dev-${{ runner.os }}-${{ hashFiles('**/${{ env.cache_files }}') }}
+#     - name: Cache dependencies
+#       id: node-cache
+#       uses: actions/cache@v3.0.11
+#       with:
+#         path: |
+#           **/node_modules
+#         key: dev-${{ runner.os }}-${{ hashFiles('**/${{ env.cache_files }}') }}
         
-    - name: Install dependencies
-      if: steps.node-cache.outputs.cache-hit != 'true'
-      id: install-dependencies-yarn
-      run: eval(${{ env.dependencies_cmd }})
-      shell: bash
+#     - name: Install dependencies
+#       if: steps.node-cache.outputs.cache-hit != 'true'
+#       id: install-dependencies-yarn
+#       run: eval(${{ env.dependencies_cmd }})
+#       shell: bash
 
 #     - name: Cache dependencies (yarn)
 #       if: inputs.build-command == 'yarn'
@@ -132,12 +132,12 @@ runs:
         done
       shell: bash
 
-    - name: Build
-      id: build
-      run: ${{ env.build_cmd }}
-      env:
-        CI: false
-      shell: bash
+#     - name: Build
+#       id: build
+#       run: ${{ env.build_cmd }}
+#       env:
+#         CI: false
+#       shell: bash
 
 #     - name: Build (yarn)
 #       if: inputs.build-command == 'yarn'
