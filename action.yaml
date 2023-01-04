@@ -69,7 +69,7 @@ runs:
          echo "dependencies_cmd=yarn install --pure-lockfile" >> $GITHUB_ENV
          echo "build_cmd=yarn build" >> $GITHUB_ENV
       env: 
-        CACHE_FILES: ${{ hashFiles("**/yarn.lock") }}
+        CACHE_FILES: ${{ hashFiles('**/yarn.lock') }}
       shell: bash
       
     - name: Setup npm commands
@@ -79,7 +79,7 @@ runs:
         echo "dependencies_cmd=npm ci" >> $GITHUB_ENV
         echo "build_cmd=npm run build" >> $GITHUB_ENV
       env: 
-        CACHE_FILES: ${{ hashFiles("**/package-lock.json") }}
+        CACHE_FILES: ${{ hashFiles('**/package-lock.json') }}
       shell: bash
         
     - name: Cache dependencies
