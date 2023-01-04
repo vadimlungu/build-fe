@@ -46,7 +46,7 @@ runs:
   steps:  
     - name: Notify Slack Start
       id: notify-slack-start
-      uses: cristi-mb/slack-notify@1.1
+      uses: cristi-mb/slack-notify@1.2
       with:
         message-type: 'start'
         slack-channel: ${{ inputs.slack-channel }}
@@ -74,6 +74,15 @@ runs:
       id: install-dependencies
       if: steps.node-cache.outputs.cache-hit != 'true'
       run: ${{ inputs.build-command }} install --pure-lockfile
+      shell: bash
+
+    - name: Set envs
+      run: |
+        for e in $(echo ${{ inputs.app-envs }} | cut -d ' ' -f 1-); do
+          key=$(echo $e | cut -d '=' -f 1)
+          value=$(echo $e | cut -d '=' -f 2)
+          echo "$key=$value" >> $GITHUB_ENV
+        done
       shell: bash
 
     - name: Build
@@ -111,7 +120,7 @@ runs:
 
     - name: Notify Slack Result
       if: always()
-      uses: cristi-mb/slack-notify@1.1
+      uses: cristi-mb/slack-notify@1.2
       with:
         message-type: 'results'
         slack-channel: ${{ inputs.slack-channel }}
