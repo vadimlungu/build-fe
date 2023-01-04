@@ -65,17 +65,21 @@ runs:
     - name: Setup yarn commands
       if: inputs.build-command == 'yarn'
       run: |
-         echo "cache_files=**/yarn.lock" >> $GITHUB_ENV
+         echo "cache_files=$CACHE_FILES" >> $GITHUB_ENV
          echo "dependencies_cmd=yarn install --pure-lockfile" >> $GITHUB_ENV
          echo "build_cmd=yarn build" >> $GITHUB_ENV
+      env: 
+        CACHE_FILES=hashFiles("**/yarn.lock")
       shell: bash
       
     - name: Setup npm commands
       if: inputs.build-command == 'npm'
       run: |
-        echo "cache_files=**/package-lock.json" >> $GITHUB_ENV
+        echo "cache_files=$CACHE_FILES" >> $GITHUB_ENV
         echo "dependencies_cmd=npm ci" >> $GITHUB_ENV
         echo "build_cmd=npm run build" >> $GITHUB_ENV
+      env: 
+        CACHE_FILES=hashFiles("**/package-lock.json")  
       shell: bash
         
     - name: Cache dependencies
@@ -84,7 +88,7 @@ runs:
       with:
         path: |
           **/node_modules
-        key: dev-${{ runner.os }}-${{ hashFiles("${{ env.cache_files }}") }}
+        key: dev-${{ runner.os }}-${{ env.cache_files }}
         
     - name: Install dependencies
       if: steps.node-cache.outputs.cache-hit != 'true'
