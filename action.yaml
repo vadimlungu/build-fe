@@ -1,7 +1,7 @@
-name: Publish FE
+name: Build FE
 description: Build and deploy webapp
 branding:
-  icon: package
+  icon: upload-cloud
   color: blue
 inputs:
   aws-access-key:
