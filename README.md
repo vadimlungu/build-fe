@@ -1,6 +1,6 @@
 # build-fe
 
-Inputs:
+### Inputs:
 
 | Name  | Required | Details | Default value |
 | :---: | :------: | :-----: | :-----------: |
