@@ -29,8 +29,8 @@ inputs:
     description: 'Command used to build the application [ yarn | npm ] (default: yarn)'
     required: false
     default: 'yarn'
-  app-envs:
-    description: 'Environment variables passed to the application'
+  build-envs:
+    description: 'Environment variables passed used for building the application'
     required: false
     default: ''
   build-path:
@@ -99,7 +99,7 @@ runs:
     - name: Set envs
       id: set-envs
       run: |
-        for e in $(echo "${{ inputs.app-envs }}" | cut -d ' ' -f 1-); do
+        for e in $(echo "${{ inputs.build-envs }}" | cut -d ' ' -f 1-); do
           key=$(echo "$e" | cut -d '=' -f 1)
           value=$(echo "$e" | cut -d '=' -f 2)
           echo "$key=$value" >> $GITHUB_ENV
