@@ -12,6 +12,6 @@
 | slack-channel | yes | | |
 | slack-token | yes | | |
 | build-command | no | [`yarn`, `npm`] | `yarn` |
-| app-envs | no | | |
+| build-envs | no | | |
 | build-path | no | | `build` |
 | node-version | no | | 16.x |
