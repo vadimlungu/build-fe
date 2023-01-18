@@ -99,7 +99,7 @@ runs:
     - name: Set envs
       id: set-envs
       run: |
-        echo "${{ inputs.build-envs }}" | tr -d '\n' | while read line; do
+        echo "${{ inputs.build-envs }}" | sed -Ez '$ s/\n+$//' | while read line; do
 #          if [[ $line == "" ]]; then
 #            continue;
 #          fi
