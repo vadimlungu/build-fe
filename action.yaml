@@ -99,8 +99,8 @@ runs:
     - name: Set envs
       id: set-envs
       run: |
-        echo "!!!!! SETTING ENVS !!!!!"
         echo "${{ inputs.build-envs }}" | while read line; do
+          echo "=== $line ==="
           key=$(echo $line | cut -d ':' -f 1 | tr -d ' ')
           value=$(echo $line | cut -d ':' -f 2 | tr -d ' ')
           echo "KEY IS $key"
