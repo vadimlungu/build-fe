@@ -99,7 +99,11 @@ runs:
     - name: Set envs
       id: set-envs
       run: |
-        echo "$BUILD_ENVS" | while read line; do
+        echo "${{ inputs.build-envs }}" | while read line; do
+          if [[ $line == "" ]]; then
+            continue;
+          fi
+
           key=$(echo $line | cut -d ':' -f 1 | tr -d ' ')
           value=$(echo $line | cut -d ':' -f 2 | tr -d ' ')
           
@@ -109,8 +113,6 @@ runs:
           
           echo "$key=$value" >> $GITHUB_ENV
         done
-      env:
-        BUILD_ENVS: ${{ inputs.build-envs }}
       shell: bash
 
     - name: Build
