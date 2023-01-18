@@ -99,9 +99,12 @@ runs:
     - name: Set envs
       id: set-envs
       run: |
+        echo "!!!!! SETTING ENVS !!!!!"
         for e in $(echo "${{ inputs.build-envs }}" | cut -d ' ' -f 1-); do
           key=$(echo "$e" | cut -d '=' -f 1)
           value=$(echo "$e" | cut -d '=' -f 2)
+          echo "KEY IS $key"
+          echo "VALUE IS $value"
           echo "$key=$value" >> $GITHUB_ENV
         done
       shell: bash
