@@ -19,12 +19,6 @@ inputs:
   aws-cloudfront-name:
     description: 'Name of the AWS S3 bucket'
     required: true
-  slack-channel:
-    description: 'Name of the Slack channel used for CI alerts'
-    required: true
-  slack-token:
-    description: 'Token for Slack integration'
-    required: true
   build-command:
     description: 'Command used to build the application [ yarn | npm ] (default: yarn)'
     required: false
@@ -44,14 +38,6 @@ inputs:
 runs:
   using: "composite"
   steps:  
-    - name: Notify Slack Start
-      id: notify-slack-start
-      uses: cristi-mb/slack-notify@main
-      with:
-        message-type: 'start'
-        slack-channel: ${{ inputs.slack-channel }}
-        slack-bot-token: ${{ inputs.slack-token }}
-        
     - name: Checkout
       id: checkout
       uses: actions/checkout@v3.2.0
@@ -143,13 +129,3 @@ runs:
           sleep 5
         done
       shell: bash
-
-    - name: Notify Slack Result
-      if: always()
-      uses: cristi-mb/slack-notify@main
-      with:
-        message-type: 'results'
-        slack-channel: ${{ inputs.slack-channel }}
-        slack-bot-token: ${{ inputs.slack-token }}
-        message-ts: ${{ steps.notify-slack-start.outputs.message-ts }}
-        steps-context: "'${{ toJson(steps) }}'"
